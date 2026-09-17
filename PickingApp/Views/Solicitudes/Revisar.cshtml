@@ -1,0 +1,124 @@
+@model PickingApp.Models.Solicitud
+@{
+    ViewData["Title"] = "Revisar solicitud";
+    var tipoDisplay = Model.TipoSolicitud switch
+    {
+        "RegistroEmpleado" => "Registro de empleado",
+        "EdicionEmpleado" => "Editar empleado",
+        "InactivarEmpleado" => "Inactivar empleado",
+        "CreacionUbicacion" => "Creación de ubicación",
+        _ => Model.TipoSolicitud
+    };
+
+    string empleadoNombre = Model.UsuarioSolicitante?.NombreCompleto ?? "Pedro Lopez";
+    string turno = "6:00 – 14:00";
+    string motivo = !string.IsNullOrEmpty(Model.MotivoRechazo) ? Model.MotivoRechazo : "Se solicita el registro del empleado para desempeñar funciones de auxiliar de picking durante el turno de la mañana.";
+
+    if (!string.IsNullOrEmpty(Model.DatosJson))
+    {
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(Model.DatosJson);
+            if (doc.RootElement.TryGetProperty("NombreCompleto", out var nom))
+            {
+                empleadoNombre = nom.GetString() ?? empleadoNombre;
+            }
+            if (doc.RootElement.TryGetProperty("JornadaLaboral", out var jor))
+            {
+                turno = jor.GetString() ?? turno;
+            }
+        }
+        catch { }
+    }
+}
+
+<h1 class="pf-page-title">Revisar solicitud</h1>
+
+<div class="mockup-card">
+    <div class="mb-4">
+        <h4 class="fw-bold text-dark mb-1">Solicitud SOL-@Model.Id</h4>
+        <div class="text-secondary fw-medium">@tipoDisplay</div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="bg-white rounded-3 p-3 shadow-sm">
+                <div class="text-secondary small fw-medium">Solicitante</div>
+                <div class="fs-5 text-dark fw-normal mt-1">@(Model.UsuarioSolicitante?.NombreCompleto ?? "Pedro Lopez")</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="bg-white rounded-3 p-3 shadow-sm">
+                <div class="text-secondary small fw-medium">Fecha de solicitud</div>
+                <div class="fs-5 text-dark fw-normal mt-1">@Model.FechaSolicitud.ToString("dd/MM/yyyy")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="bg-white rounded-3 p-3 shadow-sm">
+                <div class="text-secondary small fw-medium">Tipo de solicitud</div>
+                <div class="fs-5 text-dark fw-normal mt-1">@tipoDisplay</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="bg-white rounded-3 p-3 shadow-sm">
+                <div class="text-secondary small fw-medium">Empleado solicitado</div>
+                <div class="fs-5 text-dark fw-normal mt-1">@empleadoNombre</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="bg-white rounded-3 p-3 shadow-sm">
+                <div class="text-secondary small fw-medium">Turno solicitado</div>
+                <div class="fs-5 text-dark fw-normal mt-1">@turno</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h5 class="fw-bold text-dark mb-2">Motivo / descripción</h5>
+        <div class="mockup-info-banner mb-0">
+            @motivo
+        </div>
+    </div>
+
+    @if (Model.Estado == "Pendiente")
+    {
+        <form id="formAccionSolicitud" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <div class="mb-4">
+                <h5 class="fw-bold text-dark mb-2">Comentario de revisión</h5>
+                <textarea name="motivoRechazo" id="txtComentario" class="mockup-input" style="height: 90px;"></textarea>
+            </div>
+
+            <div class="d-flex flex-wrap gap-3">
+                <button type="submit" formaction="@Url.Action("Aprobar")" class="btn-pf-blue" style="background-color: #84CC16;">
+                    Aprobar solicitud
+                </button>
+                <button type="submit" formaction="@Url.Action("Rechazar")" class="btn-pf-blue" style="background-color: #EF4444;">
+                    Rechazar solicitud
+                </button>
+                <a asp-action="Index" class="btn-pf-gray ms-auto">
+                    Volver
+                </a>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="mockup-alert-warning mb-4">
+            Esta solicitud ya fue atendida con estado: <strong>@Model.Estado</strong>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn-pf-gray">
+                Volver
+            </a>
+        </div>
+    }
+</div>

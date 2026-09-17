@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,6 +66,21 @@ namespace PickingApp.Controllers
                 .ToListAsync();
 
             return View(misSolicitudes);
+        }
+
+        // Slide 16 / CU-08: Revisar Solicitud
+        [Authorize(Roles = "Administrador,Supervisor")]
+        [HttpGet]
+        public async Task<IActionResult> Revisar(int id)
+        {
+            var solicitud = await _context.Solicitudes
+                .Include(s => s.UsuarioSolicitante)
+                .Include(s => s.UsuarioResponde)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (solicitud == null) return NotFound();
+
+            return View(solicitud);
         }
 
         // Aprobar Solicitud (CU-08, CU-11, CU-14, CU-21, CU-41)

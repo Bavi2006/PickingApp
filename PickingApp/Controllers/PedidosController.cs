@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -160,6 +160,29 @@ namespace PickingApp.Controllers
         {
             var bytes = _excelService.GenerarPlantillaExcel();
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Plantilla_Pedidos_Picking.xlsx");
+        }
+
+        // Slide 8 / CU-26: Asignar pedido a empleado (Vista interactiva)
+        [Authorize(Roles = "Administrador,Supervisor")]
+        [HttpGet]
+        public async Task<IActionResult> Asignar(int id)
+        {
+            var pedido = await _context.Pedidos
+                .Include(p => p.Bodega)
+                .Include(p => p.Detalles)
+                .ThenInclude(d => d.Ubicacion)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (pedido == null) return NotFound();
+
+            var empleados = await _context.Empleados
+                .Where(e => e.Activo)
+                .OrderByDescending(e => e.EstadoDisponibilidad == "Disponible")
+                .ThenByDescending(e => e.MesesExperiencia)
+                .ToListAsync();
+
+            ViewBag.Pedido = pedido;
+            return View(empleados);
         }
 
         // CU-26: Asignar pedido a empleado

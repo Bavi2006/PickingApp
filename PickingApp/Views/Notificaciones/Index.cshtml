@@ -1,62 +1,41 @@
-﻿@model IEnumerable<PickingApp.Models.Notificacion>
+@model IEnumerable<PickingApp.Models.Notificacion>
 @{
-    ViewData["Title"] = "Centro de Notificaciones";
+    ViewData["Title"] = "Notificaciones";
 }
 
-<div class="mb-4">
-    <h2 class="fw-bold mb-1">Notificaciones del Sistema</h2>
-    <p class="text-muted mb-0">Alertas internas, solicitudes de personal, avisos de asignación y eventos operativos (CU-43)</p>
-</div>
+<h1 class="pf-page-title">Notificaciones</h1>
 
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-body p-0">
-        @if (Model != null && Model.Any())
+<div class="mockup-card">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var n in Model)
         {
-            <div class="list-group list-group-flush rounded-4">
-                @foreach (var n in Model)
+            <div class="mockup-notification-item">
+                <span>@n.Mensaje</span>
+                @if (!n.Leida)
                 {
-                    var icon = n.Tipo switch
-                    {
-                        "Success" => "bi-check-circle-fill text-success",
-                        "Warning" => "bi-exclamation-triangle-fill text-warning",
-                        "Danger" => "bi-x-octagon-fill text-danger",
-                        _ => "bi-info-circle-fill text-primary"
-                    };
-
-                    <div class="list-group-item p-4 d-flex justify-content-between align-items-start @(n.Leida ? "bg-white" : "bg-light")">
-                        <div class="d-flex align-items-start">
-                            <i class="bi @icon fs-4 me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1 text-dark">@n.Titulo</h6>
-                                <p class="mb-1 text-secondary">@n.Mensaje</p>
-                                <div class="small text-muted">@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</div>
-                                @if (!string.IsNullOrEmpty(n.Enlace))
-                                {
-                                    <a href="@n.Enlace" class="btn btn-sm btn-link ps-0 mt-1">Ir al módulo &rarr;</a>
-                                }
-                            </div>
-                        </div>
-
-                        @if (!n.Leida)
-                        {
-                            <form asp-action="MarcarLeida" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@n.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Marcar como leída">
-                                    <i class="bi bi-check"></i> Leída
-                                </button>
-                            </form>
-                        }
-                    </div>
+                    <form asp-action="MarcarLeida" method="post" class="d-inline ms-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@n.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-dark border-0 py-0 px-2" title="Marcar como leída">
+                            ✓
+                        </button>
+                    </form>
                 }
             </div>
         }
-        else
-        {
-            <div class="text-center py-5 text-muted">
-                <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
-                No tienes notificaciones pendientes.
-            </div>
-        }
-    </div>
+    }
+    else
+    {
+        <!-- Mockup items from Slide 20 -->
+        <div class="mockup-notification-item">
+            Pedido PED-00125 pendiente de asignación.
+        </div>
+        <div class="mockup-notification-item">
+            Hay una solicitud pendiente de revisión.
+        </div>
+        <div class="mockup-notification-item">
+            Carlos Coy tiene un pedido en proceso.
+        </div>
+    }
 </div>

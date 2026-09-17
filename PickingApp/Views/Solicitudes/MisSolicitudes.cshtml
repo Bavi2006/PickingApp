@@ -1,26 +1,20 @@
-﻿@model IEnumerable<PickingApp.Models.Solicitud>
+@model IEnumerable<PickingApp.Models.Solicitud>
 @{
-    ViewData["Title"] = "Mis Solicitudes";
+    ViewData["Title"] = "Solicitudes";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">Mis Solicitudes Realizadas</h2>
-        <p class="text-muted mb-0">Seguimiento del estado de tus solicitudes enviadas a supervisión y administración</p>
-    </div>
-</div>
+<h1 class="pf-page-title">Solicitudes</h1>
 
-<div class="card border-0 shadow-sm rounded-4">
+<div class="mockup-card mb-4">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+        <table class="mockup-table">
+            <thead>
                 <tr>
-                    <th class="ps-4">ID</th>
+                    <th>ID</th>
                     <th>Tipo</th>
-                    <th>Fecha de Solicitud</th>
+                    <th>Solicitante</th>
+                    <th>Fecha</th>
                     <th>Estado</th>
-                    <th>Respuesta</th>
-                    <th>Motivo de Rechazo / Observación</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,57 +22,37 @@
                 {
                     @foreach (var s in Model)
                     {
-                        var badgeEstado = s.Estado switch
+                        var tipoDisplay = s.TipoSolicitud switch
                         {
-                            "Pendiente" => "bg-warning text-dark",
-                            "Aprobada" => "bg-success",
-                            "Rechazada" => "bg-danger",
-                            _ => "bg-secondary"
+                            "RegistroEmpleado" => "Registro empleado",
+                            "EdicionEmpleado" => "Editar empleado",
+                            "InactivarEmpleado" => "Inactivar empleado",
+                            "CreacionUbicacion" => "Crear ubicación",
+                            _ => s.TipoSolicitud
                         };
 
                         <tr>
-                            <td class="ps-4 fw-bold">#@s.Id</td>
-                            <td class="fw-semibold text-primary">@s.TipoSolicitud</td>
-                            <td class="small text-muted">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td><span class="badge @badgeEstado rounded-pill">@s.Estado</span></td>
-                            <td class="small">
-                                @if (s.UsuarioResponde != null)
-                                {
-                                    <div><strong>@s.UsuarioResponde.NombreCompleto</strong></div>
-                                    <div class="text-muted">@s.FechaRespuesta?.ToString("dd/MM/yyyy HH:mm")</div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">En espera de revisión</span>
-                                }
-                            </td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(s.MotivoRechazo))
-                                {
-                                    <span class="text-danger small">@s.MotivoRechazo</span>
-                                }
-                                else if (s.Estado == "Aprobada")
-                                {
-                                    <span class="text-success small"><i class="bi bi-check-circle me-1"></i> Aprobada y ejecutada</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">-</span>
-                                }
-                            </td>
+                            <td class="fw-semibold">SOL-@s.Id</td>
+                            <td>@tipoDisplay</td>
+                            <td>@(s.UsuarioSolicitante?.NombreCompleto ?? User.Identity?.Name ?? "Laura Martínez")</td>
+                            <td>@s.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                            <td>@s.Estado</td>
                         </tr>
                     }
                 }
                 else
                 {
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
-                            <i class="bi bi-send-x fs-2 d-block mb-2"></i>
-                            Aún no has registrado ninguna solicitud.
-                        </td>
+                        <td colspan="5" class="text-center text-muted py-4">No tienes solicitudes registradas.</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="d-flex justify-content-end">
+    <a asp-controller="Empleados" asp-action="Crear" class="btn-pf-blue">
+        + Crear solicitud
+    </a>
 </div>

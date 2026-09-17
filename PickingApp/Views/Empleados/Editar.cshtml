@@ -1,95 +1,108 @@
-﻿@model PickingApp.Models.Empleado
+@model PickingApp.Models.Empleado
 @{
-    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Auxiliar";
-    ViewData["Title"] = userRole == "Administrador" ? "Editar Empleado" : "Solicitar Edición de Empleado";
+    ViewData["Title"] = "Editar empleado";
+    var nombres = "";
+    var apellidos = "";
+    if (!string.IsNullOrEmpty(Model.NombreCompleto))
+    {
+        var parts = Model.NombreCompleto.Split(' ', 2);
+        nombres = parts[0];
+        apellidos = parts.Length > 1 ? parts[1] : "";
+    }
 }
 
-<div class="container py-3">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="fw-bold mb-0 text-primary">
-                        <i class="bi bi-pencil-square me-2"></i> @ViewData["Title"]
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    @if (userRole != "Administrador")
-                    {
-                        <div class="alert alert-info small mb-4">
-                            <i class="bi bi-info-circle-fill me-2"></i> Sus cambios generarán una solicitud formal al Administrador para su aprobación (CU-10).
-                        </div>
-                    }
+<h1 class="pf-page-title">Editar empleado</h1>
 
-                    <form asp-action="Editar" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="Id" />
-                        <input type="hidden" asp-for="Identificacion" />
+<div class="mockup-card">
+    <div class="mockup-info-banner">
+        Complete la información del empleado. Los campos marcados con * son obligatorios
+    </div>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Identificación</label>
-                                <input class="form-control bg-light" value="@Model.Identificacion" disabled />
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="NombreCompleto" class="form-label fw-semibold">Nombre Completo</label>
-                                <input asp-for="NombreCompleto" class="form-control" />
-                                <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
-                            </div>
-                        </div>
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+    {
+        <div class="mockup-alert-warning mb-4">
+            @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="Correo" class="form-label fw-semibold">Correo Electrónico</label>
-                                <input asp-for="Correo" class="form-control" />
-                                <span asp-validation-for="Correo" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="FechaIngreso" class="form-label fw-semibold">Fecha de Ingreso</label>
-                                <input asp-for="FechaIngreso" type="date" class="form-control" />
-                                <span asp-validation-for="FechaIngreso" class="text-danger small"></span>
-                            </div>
-                        </div>
+    <form asp-action="Editar" method="post" id="formEmpleado">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Identificacion" />
+        <input type="hidden" asp-for="NombreCompleto" id="hiddenNombreCompleto" />
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label asp-for="JornadaLaboral" class="form-label fw-semibold">Jornada</label>
-                                <select asp-for="JornadaLaboral" class="form-select">
-                                    <option value="Diurna">Diurna</option>
-                                    <option value="Tarde">Tarde</option>
-                                    <option value="Nocturna">Nocturna</option>
-                                    <option value="Mixta">Mixta</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="HorarioEntrada" class="form-label fw-semibold">Hora Entrada</label>
-                                <input asp-for="HorarioEntrada" type="time" class="form-control" />
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="HorarioSalida" class="form-label fw-semibold">Hora Salida</label>
-                                <input asp-for="HorarioSalida" type="time" class="form-control" />
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="EstadoDisponibilidad" class="form-label fw-semibold">Disponibilidad Actual</label>
-                            <select asp-for="EstadoDisponibilidad" class="form-select">
-                                <option value="Disponible">Disponible</option>
-                                <option value="EnPicking">En Picking</option>
-                                <option value="FueraDeJornada">Fuera de Jornada</option>
-                                <option value="Inactivo">Inactivo</option>
-                            </select>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check2 me-1"></i> @(userRole == "Administrador" ? "Guardar Cambios" : "Enviar Solicitud")
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        <div class="row mb-3">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Nombres <span class="text-danger">*</span></label>
+                <input type="text" id="inputNombres" class="mockup-input" value="@nombres" required />
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Apellidos <span class="text-danger">*</span></label>
+                <input type="text" id="inputApellidos" class="mockup-input" value="@apellidos" required />
             </div>
         </div>
-    </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Numero de documento <span class="text-danger">*</span></label>
+                <input class="mockup-input" value="@Model.Identificacion" disabled style="background-color: #E5E7EB !important;" />
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Correo electronico <span class="text-danger">*</span></label>
+                <input asp-for="Correo" type="email" class="mockup-input" required />
+                <span asp-validation-for="Correo" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Fecha de ingreso <span class="text-danger">*</span></label>
+                <input asp-for="FechaIngreso" type="date" class="mockup-input" required />
+                <span asp-validation-for="FechaIngreso" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Cargo <span class="text-danger">*</span></label>
+                <input type="text" name="Cargo" class="mockup-input" value="Auxiliar de Picking" required />
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Turno <span class="text-danger">*</span></label>
+                <input asp-for="JornadaLaboral" class="mockup-input" required />
+                <span asp-validation-for="JornadaLaboral" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Estado <span class="text-danger">*</span></label>
+                <select asp-for="EstadoDisponibilidad" class="mockup-input">
+                    <option value="Disponible">Libre (Disponible)</option>
+                    <option value="EnPicking">Ocupado</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+                <span asp-validation-for="EstadoDisponibilidad" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 pt-2">
+            <a asp-action="Index" class="btn-pf-gray">
+                Cancelar
+            </a>
+            <button type="submit" class="btn-pf-blue">
+                Guardar cambios
+            </button>
+        </div>
+    </form>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('formEmpleado').addEventListener('submit', function (e) {
+            const nom = document.getElementById('inputNombres').value.trim();
+            const ape = document.getElementById('inputApellidos').value.trim();
+            document.getElementById('hiddenNombreCompleto').value = (nom + ' ' + ape).trim();
+        });
+    </script>
+}

@@ -1,56 +1,49 @@
-﻿@model PickingApp.Models.ViewModels.ChangePasswordViewModel
+@model PickingApp.Models.ViewModels.ChangePasswordViewModel
 @{
-    ViewData["Title"] = "Cambiar Mi Contraseña";
+    ViewData["Title"] = "Cambiar contraseña";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="card-title fw-bold mb-0 text-primary">
-                        <i class="bi bi-shield-lock-fill me-2"></i> Cambiar Mi Contraseña
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Por favor verifique los datos ingresados.
-                        </div>
-                    }
+<h1 class="pf-page-title">Cambiar contraseña</h1>
 
-                    <form asp-action="CambiarContrasena" method="post">
-                        @Html.AntiForgeryToken()
-
-                        <div class="mb-3">
-                            <label asp-for="CurrentPassword" class="form-label fw-semibold">Contraseña Actual</label>
-                            <input asp-for="CurrentPassword" class="form-control" />
-                            <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="NewPassword" class="form-label fw-semibold">Nueva Contraseña</label>
-                            <input asp-for="NewPassword" class="form-control" />
-                            <div class="form-text small">Mínimo 6 caracteres con letras y números.</div>
-                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="ConfirmPassword" class="form-label fw-semibold">Confirmar Nueva Contraseña</label>
-                            <input asp-for="ConfirmPassword" class="form-control" />
-                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2">
-                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check2-circle me-1"></i> Actualizar Contraseña
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="mockup-card" style="max-width: 680px;">
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+    {
+        <div class="mockup-alert-warning mb-4">
+            @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+            {
+                <div>@error.ErrorMessage</div>
+            }
         </div>
-    </div>
+    }
+
+    <form asp-action="CambiarContrasena" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="mockup-form-group mb-3">
+            <label asp-for="CurrentPassword" class="mockup-label">Contraseña actual <span class="text-danger">*</span></label>
+            <input asp-for="CurrentPassword" type="password" class="mockup-input" required />
+            <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+        </div>
+
+        <div class="mockup-form-group mb-3">
+            <label asp-for="NewPassword" class="mockup-label">Nueva contraseña <span class="text-danger">*</span></label>
+            <input asp-for="NewPassword" type="password" class="mockup-input" required />
+            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+        </div>
+
+        <div class="mockup-form-group mb-4">
+            <label asp-for="ConfirmPassword" class="mockup-label">Confirmar nueva contraseña <span class="text-danger">*</span></label>
+            <input asp-for="ConfirmPassword" type="password" class="mockup-input" required />
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 pt-2">
+            <a asp-controller="Home" asp-action="Index" class="btn-pf-gray">
+                Cancelar
+            </a>
+            <button type="submit" class="btn-pf-blue">
+                Actualizar contraseña
+            </button>
+        </div>
+    </form>
 </div>

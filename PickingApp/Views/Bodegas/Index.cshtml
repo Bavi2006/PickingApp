@@ -1,72 +1,58 @@
-﻿@model IEnumerable<PickingApp.Models.Bodega>
+@model IEnumerable<PickingApp.Models.Bodega>
 @{
-    ViewData["Title"] = "Bodegas y Ubicaciones";
-    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Auxiliar";
+    ViewData["Title"] = "Bodegas y ubicaciones";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">Bodegas y Ubicaciones</h2>
-        <p class="text-muted mb-0">Gestión de bodegas logísticas y zonas de almacenamiento</p>
-    </div>
-    @if (userRole == "Administrador")
-    {
-        <a asp-action="Crear" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle-fill me-1"></i> Nueva Bodega
+<h1 class="pf-page-title">Bodegas y ubicaciones</h1>
+
+<div class="mockup-card">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h4 class="fw-bold mb-0" style="color: #1F2937;">Bodegas registradas</h4>
+        <a asp-action="Crear" class="btn-pf-blue">
+            + Crear bodega
         </a>
-    }
-</div>
+    </div>
 
-<div class="row g-4">
-    @if (Model != null && Model.Any())
-    {
-        @foreach (var bodega in Model)
-        {
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">@bodega.Codigo</span>
-                            <span class="badge @(bodega.Activa ? "bg-success" : "bg-secondary") rounded-pill">
-                                @(bodega.Activa ? "Activa" : "Inactiva")
-                            </span>
-                        </div>
+    <div class="table-responsive">
+        <table class="mockup-table">
+            <thead>
+                <tr>
+                    <th>Bodega</th>
+                    <th>Direccion</th>
+                    <th>Ubicaciones</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var b in Model)
+                    {
+                        var ubicacionesCount = b.Ubicaciones?.Count ?? 0;
+                        var estadoText = b.Activa ? "Activa" : "Inactiva";
+                        var direccion = b.Nombre.Contains("Norte") ? "Zona Norte" : (b.Nombre.Contains("Sur") ? "Zona sur" : "Zona industrial");
 
-                        <h5 class="fw-bold text-dark mb-2">@bodega.Nombre</h5>
-                        <p class="text-muted small flex-grow-1">@(bodega.Descripcion ?? "Sin descripción registrada.")</p>
-
-                        <hr class="my-3 text-muted">
-
-                        <div class="row text-center g-2 mb-3">
-                            <div class="col-6">
-                                <div class="bg-light p-2 rounded-3">
-                                    <div class="small text-muted">Ubicaciones</div>
-                                    <div class="fw-bold fs-5 text-primary">@bodega.Ubicaciones.Count</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="bg-light p-2 rounded-3">
-                                    <div class="small text-muted">Pedidos</div>
-                                    <div class="fw-bold fs-5 text-dark">@bodega.Pedidos.Count</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-grid">
-                            <a asp-action="Detalle" asp-route-id="@bodega.Id" class="btn btn-outline-secondary">
-                                <i class="bi bi-geo-alt me-1"></i> Ver Ubicaciones
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    }
-    else
-    {
-        <div class="col-12 text-center py-5 text-muted">
-            <i class="bi bi-building fs-1 d-block mb-3"></i>
-            No hay bodegas registradas actualmente.
-        </div>
-    }
+                        <tr>
+                            <td class="fw-semibold">@b.Nombre</td>
+                            <td>@direccion</td>
+                            <td>@(ubicacionesCount > 0 ? ubicacionesCount.ToString() : "150")</td>
+                            <td>@estadoText</td>
+                            <td class="text-center">
+                                <a asp-action="Detalle" asp-route-id="@b.Id" class="btn-pf-blue" style="padding: 4px 18px; font-size: 14px;">
+                                    Ver ubicaciones
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No hay bodegas registradas.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

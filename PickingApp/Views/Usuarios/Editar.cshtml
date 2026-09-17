@@ -1,65 +1,64 @@
-﻿@model PickingApp.Models.Usuario
+@model PickingApp.Models.Usuario
 @{
-    ViewData["Title"] = "Editar Usuario y Rol";
+    ViewData["Title"] = "Editar usuario";
+    var username = Model.Correo.Contains("@") ? Model.Correo.Split('@')[0] : Model.Correo;
 }
 
-<div class="container py-3">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="fw-bold mb-0 text-primary">
-                        <i class="bi bi-person-gear me-2"></i> Editar Usuario: @Model.Correo
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="Editar" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
+<h1 class="pf-page-title">Editar usuario</h1>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Nombre Completo</label>
-                            <input type="text" name="nombreCompleto" value="@Model.NombreCompleto" class="form-control" required />
-                        </div>
+<div class="mockup-card">
+    <form asp-action="Editar" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Correo Electrónico (No editable)</label>
-                            <input type="text" class="form-control bg-light" value="@Model.Correo" disabled />
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Rol Asignado (CU-05)</label>
-                                <select name="rol" class="form-select">
-                                    <option value="Auxiliar" selected="@(Model.Rol == "Auxiliar")">Auxiliar</option>
-                                    <option value="Supervisor" selected="@(Model.Rol == "Supervisor")">Supervisor</option>
-                                    <option value="Administrador" selected="@(Model.Rol == "Administrador")">Administrador</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Estado de Cuenta</label>
-                                <select name="estado" class="form-select">
-                                    <option value="Activo" selected="@(Model.Estado == "Activo")">Activo</option>
-                                    <option value="Bloqueado" selected="@(Model.Estado == "Bloqueado")">Bloqueado</option>
-                                    <option value="Inactivo" selected="@(Model.Estado == "Inactivo")">Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Restablecer Contraseña (Opcional)</label>
-                            <input type="password" name="nuevaPassword" class="form-control" placeholder="Dejar en blanco si no desea cambiarla" />
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2">
-                            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check2 me-1"></i> Guardar Cambios
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        <div class="row mb-3">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Nombre de usuario <span class="text-danger">*</span></label>
+                <input type="text" class="mockup-input" value="@username" disabled style="background-color: #E5E7EB !important;" />
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Correo electrónico <span class="text-danger">*</span></label>
+                <input type="text" class="mockup-input" value="@Model.Correo" disabled style="background-color: #E5E7EB !important;" />
             </div>
         </div>
-    </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Nombre completo <span class="text-danger">*</span></label>
+                <input type="text" name="nombreCompleto" class="mockup-input" value="@Model.NombreCompleto" required />
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Rol <span class="text-danger">*</span></label>
+                <select name="rol" class="mockup-input" required>
+                    <option value="Administrador" selected="@(Model.Rol == "Administrador")">Administrador</option>
+                    <option value="Supervisor" selected="@(Model.Rol == "Supervisor")">Supervisor</option>
+                    <option value="Auxiliar" selected="@(Model.Rol == "Auxiliar")">Auxiliar</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Estado <span class="text-danger">*</span></label>
+                <select name="estado" class="mockup-input" required>
+                    <option value="Activo" selected="@(Model.Estado == "Activo")">Activo</option>
+                    <option value="Inactivo" selected="@(Model.Estado == "Inactivo")">Inactivo</option>
+                    <option value="Bloqueado" selected="@(Model.Estado == "Bloqueado")">Bloqueado</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mockup-alert-warning mb-4" style="font-weight: normal;">
+            Cambiar el rol modificara los módulos y permisos disponibles para este usuario.
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 pt-2">
+            <a asp-action="Index" class="btn-pf-gray">
+                Cancelar
+            </a>
+            <button type="submit" class="btn-pf-blue">
+                Guardar cambios
+            </button>
+        </div>
+    </form>
 </div>

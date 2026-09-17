@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,19 +19,23 @@ namespace PickingApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var hoy = DateTime.Today;
+            var pendientes = await _context.Pedidos.CountAsync(p => p.Estado == "Pendiente");
+            var enProceso = await _context.Pedidos.CountAsync(p => p.Estado == "Asignado" || p.Estado == "EnProceso");
+            var completados = await _context.Pedidos.CountAsync(p => p.Estado == "Completado");
+            var cancelados = await _context.Pedidos.CountAsync(p => p.Estado == "Cancelado");
+            var reasignados = await _context.Pedidos.CountAsync(p => p.Estado == "Reasignado");
 
-            ViewBag.TotalPendientes = await _context.Pedidos.CountAsync(p => p.Estado == "Pendiente");
-            ViewBag.TotalEnProceso = await _context.Pedidos.CountAsync(p => p.Estado == "Asignado" || p.Estado == "EnProceso");
-            ViewBag.TotalCompletadosHoy = await _context.Pedidos.CountAsync(p => p.Estado == "Completado" && p.FechaFinalizacion >= hoy);
-            ViewBag.EmpleadosDisponibles = await _context.Empleados.CountAsync(e => e.Activo && e.EstadoDisponibilidad == "Disponible");
-            ViewBag.TotalBodegas = await _context.Bodegas.CountAsync(b => b.Activa);
+            ViewBag.TotalPendientes = pendientes;
+            ViewBag.TotalEnProceso = enProceso;
+            ViewBag.TotalCompletados = completados;
+            ViewBag.TotalCancelados = cancelados;
+            ViewBag.TotalReasignados = reasignados;
 
             var ultimosPedidos = await _context.Pedidos
                 .Include(p => p.Bodega)
                 .Include(p => p.Empleado)
                 .OrderByDescending(p => p.FechaCarga)
-                .Take(5)
+                .Take(6)
                 .ToListAsync();
 
             return View(ultimosPedidos);

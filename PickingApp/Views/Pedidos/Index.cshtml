@@ -1,101 +1,38 @@
-﻿@model IEnumerable<PickingApp.Models.Pedido>
+@model IEnumerable<PickingApp.Models.Pedido>
 @{
-    ViewData["Title"] = "Gestión de Pedidos";
-    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Auxiliar";
-    var bodegas = ViewBag.Bodegas as IEnumerable<PickingApp.Models.Bodega>;
+    ViewData["Title"] = "Gestión de pedidos";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">Pedidos de Picking</h2>
-        <p class="text-muted mb-0">Monitoreo, consulta y estado de preparación de pedidos</p>
-    </div>
-    @if (userRole == "Administrador" || userRole == "Supervisor")
-    {
-        <div class="d-flex gap-2">
-            <a asp-action="CargarExcel" class="btn btn-primary shadow-sm">
-                <i class="bi bi-file-earmark-excel-fill me-1"></i> Cargar archivo Excel
-            </a>
-            <a asp-action="DescargarPlantilla" class="btn btn-outline-secondary">
-                <i class="bi bi-download me-1"></i> Plantilla Excel
+<h1 class="pf-page-title">Gestión de pedidos</h1>
+
+<div class="mockup-card">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <form method="get" asp-action="Index" class="d-flex gap-2 align-items-center">
+            <input type="text" name="busqueda" value="@ViewBag.Busqueda" class="mockup-search-input" placeholder="Buscar Pedido..." onchange="this.form.submit()" />
+            @if (!string.IsNullOrEmpty(ViewBag.Busqueda as string))
+            {
+                <a asp-action="Index" class="btn-pf-gray" style="padding: 6px 12px; font-size: 13px;" title="Limpiar">✕</a>
+            }
+        </form>
+
+        <div>
+            <a asp-action="CargarExcel" class="btn-pf-blue">
+                + Cargar Excel
             </a>
         </div>
-    }
-</div>
-
-<div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-body p-3">
-        <form method="get" asp-action="Index" class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold text-secondary">Buscar Código o Producto</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" name="busqueda" value="@ViewBag.Busqueda" class="form-control" placeholder="Ej: PED-2026, Mouse..." />
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold text-secondary">Estado</label>
-                <select name="estado" class="form-select">
-                    <option value="">Todos los Estados</option>
-                    <option value="Pendiente" selected="@(ViewBag.FiltroEstado == "Pendiente")">Pendiente</option>
-                    <option value="Asignado" selected="@(ViewBag.FiltroEstado == "Asignado")">Asignado</option>
-                    <option value="EnProceso" selected="@(ViewBag.FiltroEstado == "EnProceso")">En Proceso</option>
-                    <option value="Completado" selected="@(ViewBag.FiltroEstado == "Completado")">Completado</option>
-                    <option value="Cancelado" selected="@(ViewBag.FiltroEstado == "Cancelado")">Cancelado</option>
-                    <option value="Reasignado" selected="@(ViewBag.FiltroEstado == "Reasignado")">Reasignado</option>
-                </select>
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold text-secondary">Prioridad</label>
-                <select name="prioridad" class="form-select">
-                    <option value="">Todas</option>
-                    <option value="Alta" selected="@(ViewBag.FiltroPrioridad == "Alta")">Alta</option>
-                    <option value="Media" selected="@(ViewBag.FiltroPrioridad == "Media")">Media</option>
-                    <option value="Baja" selected="@(ViewBag.FiltroPrioridad == "Baja")">Baja</option>
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold text-secondary">Bodega</label>
-                <select name="bodegaId" class="form-select">
-                    <option value="">Todas las Bodegas</option>
-                    @if (bodegas != null)
-                    {
-                        @foreach (var b in bodegas)
-                        {
-                            <option value="@b.Id" selected="@(ViewBag.FiltroBodegaId == b.Id)">@b.Nombre (@b.Codigo)</option>
-                        }
-                    }
-                </select>
-            </div>
-
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-funnel-fill me-1"></i> Filtrar
-                </button>
-                <a asp-action="Index" class="btn btn-outline-secondary" title="Limpiar Filtros">
-                    <i class="bi bi-x-circle"></i>
-                </a>
-            </div>
-        </form>
     </div>
-</div>
 
-<div class="card border-0 shadow-sm rounded-4">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+        <table class="mockup-table">
+            <thead>
                 <tr>
-                    <th class="ps-4">Código</th>
-                    <th>Bodega</th>
-                    <th>Líneas / Cantidad</th>
+                    <th>Pedido</th>
+                    <th>Fecha</th>
                     <th>Prioridad</th>
+                    <th>Bodega</th>
                     <th>Estado</th>
-                    <th>Empleado Asignado</th>
-                    <th>Fecha Carga</th>
-                    <th class="text-end pe-4">Acción</th>
+                    <th>Empleado</th>
+                    <th class="text-center">Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -103,44 +40,16 @@
                 {
                     @foreach (var p in Model)
                     {
-                        var badgePrioridad = p.Prioridad == "Alta" ? "bg-danger" : (p.Prioridad == "Media" ? "bg-warning text-dark" : "bg-secondary");
-                        var badgeEstado = p.Estado switch
-                        {
-                            "Pendiente" => "bg-secondary",
-                            "Asignado" => "bg-info text-dark",
-                            "EnProceso" => "bg-primary",
-                            "Completado" => "bg-success",
-                            "Cancelado" => "bg-danger",
-                            "Reasignado" => "bg-warning text-dark",
-                            _ => "bg-light text-dark"
-                        };
-
                         <tr>
-                            <td class="ps-4 fw-semibold text-primary">
-                                <i class="bi bi-box me-1 text-muted"></i> @p.CodigoPedido
-                            </td>
-                            <td>@(p.Bodega?.Nombre ?? "N/A")</td>
-                            <td>
-                                <div><strong>@p.Detalles.Count ítems</strong></div>
-                                <div class="small text-muted">@p.Detalles.Sum(d => d.Cantidad) unidades</div>
-                            </td>
-                            <td><span class="badge @badgePrioridad">@p.Prioridad</span></td>
-                            <td><span class="badge @badgeEstado rounded-pill">@p.Estado</span></td>
-                            <td>
-                                @if (p.Empleado != null)
-                                {
-                                    <div class="fw-semibold text-dark">@p.Empleado.NombreCompleto</div>
-                                    <div class="small text-muted">Doc: @p.Empleado.Identificacion</div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">Sin asignar</span>
-                                }
-                            </td>
-                            <td class="small text-muted">@p.FechaCarga.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td class="text-end pe-4">
-                                <a asp-action="Detalle" asp-route-id="@p.Id" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-arrow-right-circle me-1"></i> Gestionar
+                            <td class="fw-semibold">@p.CodigoPedido</td>
+                            <td>@p.FechaCarga.ToString("dd/MM/yyyy")</td>
+                            <td>@p.Prioridad</td>
+                            <td>@(p.Bodega?.Nombre ?? "Principal")</td>
+                            <td>@p.Estado</td>
+                            <td>@(p.Empleado?.NombreCompleto ?? "Sin asignar")</td>
+                            <td class="text-center">
+                                <a asp-action="Detalle" asp-route-id="@p.Id" class="btn-pf-blue" style="padding: 4px 20px; font-size: 14px;">
+                                    Ver
                                 </a>
                             </td>
                         </tr>
@@ -149,9 +58,8 @@
                 else
                 {
                     <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
-                            <i class="bi bi-receipt fs-1 d-block mb-2"></i>
-                            No se encontraron pedidos con los filtros aplicados.
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No se encontraron pedidos registrados.
                         </td>
                     </tr>
                 }

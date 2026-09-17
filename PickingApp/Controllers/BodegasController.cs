@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +32,7 @@ namespace PickingApp.Controllers
             return View(bodegas);
         }
 
-        // Detalle de Bodega y sus Ubicaciones
+        // Detalle de Bodega y sus Ubicaciones (Slide 26)
         public async Task<IActionResult> Detalle(int id)
         {
             var bodega = await _context.Bodegas
@@ -43,6 +43,10 @@ namespace PickingApp.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.TodasBodegas = await _context.Bodegas
+                .Include(b => b.Ubicaciones)
+                .ToListAsync();
 
             return View(bodega);
         }

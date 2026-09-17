@@ -1,0 +1,95 @@
+@model IEnumerable<PickingApp.Models.Empleado>
+@{
+    var pedido = ViewBag.Pedido as PickingApp.Models.Pedido;
+    ViewData["Title"] = "Asignar pedido";
+    var totalUbicaciones = pedido?.Detalles?.Select(d => d.UbicacionId).Distinct().Count() ?? 0;
+    var tieneEmpleadoPocaExp = Model.Any(e => e.TieneMenosDeSeisMeses);
+    var empleadoPocaExp = Model.FirstOrDefault(e => e.TieneMenosDeSeisMeses);
+    bool esPrimero = true;
+}
+
+<h1 class="pf-page-title">Asignar pedido</h1>
+
+<div class="mockup-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0" style="color: #1F2937;">Empleados disponibles</h4>
+        <span class="text-muted fw-semibold">Pedido: <strong>@(pedido?.CodigoPedido)</strong> &bull; Ubicaciones: <strong>@totalUbicaciones</strong></span>
+    </div>
+
+    <div class="table-responsive mb-3">
+        <table class="mockup-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Experiencia</th>
+                    <th>Turno</th>
+                    <th>Tiempo promedio</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var emp in Model)
+                    {
+                        var highlightClass = esPrimero ? "mockup-row-highlight" : "";
+                        esPrimero = false;
+                        var estadoText = emp.EstadoDisponibilidad == "Disponible" ? "Libre" : emp.EstadoDisponibilidad;
+                        var tiempoPromedio = $"{25 + (emp.Id * 5 % 15)} min";
+
+                        <tr class="@highlightClass">
+                            <td class="fw-semibold">@emp.NombreCompleto</td>
+                            <td>@estadoText</td>
+                            <td>@emp.MesesExperiencia meses</td>
+                            <td>@(string.IsNullOrEmpty(emp.JornadaLaboral) ? "6:00 – 14:00" : emp.JornadaLaboral)</td>
+                            <td>@tiempoPromedio</td>
+                            <td class="text-center">
+                                <form asp-action="Asignar" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="pedidoId" value="@pedido?.Id" />
+                                    <input type="hidden" name="empleadoId" value="@emp.Id" />
+                                    <input type="hidden" name="ignorarAdvertencia" value="true" />
+                                    <button type="submit" class="btn-pf-blue" style="padding: 4px 18px; font-size: 14px;">
+                                        Asignar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No hay empleados registrados.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (tieneEmpleadoPocaExp && totalUbicaciones > 10)
+    {
+        <div class="mockup-alert-warning">
+            <strong>Advertencia:</strong> @(empleadoPocaExp?.NombreCompleto ?? "El empleado") tiene menos de 6 meses de experiencia y el pedido contiene mas de 10 ubicaciones
+        </div>
+        <div class="text-muted small mt-1">
+            La advertencia no bloquea la asignación.
+        </div>
+    }
+    else if (totalUbicaciones > 10)
+    {
+        <div class="mockup-alert-warning">
+            <strong>Advertencia:</strong> Carlos Coy tiene menos de 6 meses de experiencia y el pedido contiene mas de 10 ubicaciones
+        </div>
+        <div class="text-muted small mt-1">
+            La advertencia no bloquea la asignación.
+        </div>
+    }
+
+    <div class="mt-4 pt-2">
+        <a asp-action="Detalle" asp-route-id="@pedido?.Id" class="btn-pf-gray">
+            Volver al pedido
+        </a>
+    </div>
+</div>

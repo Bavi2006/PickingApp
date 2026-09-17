@@ -1,56 +1,69 @@
-﻿@model PickingApp.Models.Ubicacion
+@model PickingApp.Models.Ubicacion
 @{
     var bodega = ViewBag.Bodega as PickingApp.Models.Bodega;
-    ViewData["Title"] = $"Nueva Ubicación en {bodega?.Codigo}";
+    ViewData["Title"] = "Crear ubicación";
 }
 
-<div class="container py-3">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="fw-bold mb-0 text-primary">
-                        <i class="bi bi-geo-alt-fill me-2"></i> Crear Ubicación en @bodega?.Nombre (@bodega?.Codigo)
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="CrearUbicacion" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="BodegaId" />
+<h1 class="pf-page-title">Crear ubicación</h1>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label asp-for="Pasillo" class="form-label fw-semibold">Pasillo</label>
-                                <input asp-for="Pasillo" class="form-control" placeholder="Ej: P01 o 01" />
-                                <span asp-validation-for="Pasillo" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="Estante" class="form-label fw-semibold">Estante</label>
-                                <input asp-for="Estante" class="form-control" placeholder="Ej: E01 o 01" />
-                                <span asp-validation-for="Estante" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="Nivel" class="form-label fw-semibold">Nivel</label>
-                                <input asp-for="Nivel" class="form-control" placeholder="Ej: N01 o 01" />
-                                <span asp-validation-for="Nivel" class="text-danger small"></span>
-                            </div>
-                        </div>
+<div class="mockup-card">
+    <div class="mockup-info-banner">
+        Complete la información de la ubicación que desea registrar en el sistema.
+    </div>
 
-                        <div class="mb-4">
-                            <label asp-for="CodigoUbicacion" class="form-label fw-semibold">Código de Ubicación (Opcional)</label>
-                            <input asp-for="CodigoUbicacion" class="form-control text-uppercase" placeholder="Si se deja vacío, se genera automático: PAS-X-EST-Y-NIV-Z" />
-                            <span asp-validation-for="CodigoUbicacion" class="text-danger small"></span>
-                        </div>
+    <form asp-action="CrearUbicacion" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="BodegaId" />
 
-                        <div class="d-flex justify-content-end gap-2">
-                            <a asp-action="Detalle" asp-route-id="@Model.BodegaId" class="btn btn-outline-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check2 me-1"></i> Guardar Ubicación
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        <div class="row mb-3">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Bodega</label>
+                <input type="text" class="mockup-input" value="@(bodega?.Nombre ?? "Bodega principal")" disabled style="background-color: #E5E7EB !important;" />
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Código de ubicación</label>
+                <input asp-for="CodigoUbicacion" class="mockup-input" placeholder="Ej: A-01-01" />
+                <span asp-validation-for="CodigoUbicacion" class="text-danger small"></span>
             </div>
         </div>
-    </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Zona / Área</label>
+                <input type="text" name="Zona" class="mockup-input" placeholder="General" />
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Pasillo</label>
+                <input asp-for="Pasillo" class="mockup-input" placeholder="01" required />
+                <span asp-validation-for="Pasillo" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Nivel</label>
+                <input asp-for="Nivel" class="mockup-input" placeholder="01" required />
+                <span asp-validation-for="Nivel" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 mockup-form-group">
+                <label class="mockup-label">Estado</label>
+                <select asp-for="Activa" class="mockup-input">
+                    <option value="true">Activa</option>
+                    <option value="false">Inactiva</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Hidden Estante default -->
+        <input type="hidden" asp-for="Estante" value="01" />
+
+        <div class="d-flex justify-content-end gap-3 pt-2">
+            <a asp-action="Detalle" asp-route-id="@Model.BodegaId" class="btn-pf-gray">
+                Cancelar
+            </a>
+            <button type="submit" class="btn-pf-blue">
+                Crear ubicación
+            </button>
+        </div>
+    </form>
 </div>

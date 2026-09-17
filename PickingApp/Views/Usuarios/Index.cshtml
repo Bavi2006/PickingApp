@@ -1,84 +1,53 @@
-﻿@model IEnumerable<PickingApp.Models.Usuario>
+@model IEnumerable<PickingApp.Models.Usuario>
 @{
-    ViewData["Title"] = "Gestión de Usuarios y Roles";
+    ViewData["Title"] = "Usuarios y roles";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">Usuarios y Roles del Sistema</h2>
-        <p class="text-muted mb-0">Administración de cuentas, roles de acceso y desbloqueo de usuarios (CU-04, CU-05)</p>
-    </div>
-    <a asp-action="Crear" class="btn btn-primary shadow-sm">
-        <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
-    </a>
-</div>
+<h1 class="pf-page-title">Usuarios y roles</h1>
 
-<div class="card border-0 shadow-sm rounded-4">
+<div class="mockup-card">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h4 class="fw-bold mb-0" style="color: #1F2937;">Usuarios registrados</h4>
+        <a asp-action="Crear" class="btn-pf-blue">
+            + Nuevo usuario
+        </a>
+    </div>
+
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+        <table class="mockup-table">
+            <thead>
                 <tr>
-                    <th class="ps-4">Nombre Completo</th>
-                    <th>Correo Electrónico</th>
-                    <th>Rol Asignado</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
                     <th>Estado</th>
-                    <th>Intentos Fallidos</th>
-                    <th>Último Acceso</th>
-                    <th class="text-end pe-4">Acciones</th>
+                    <th class="text-center">Acción</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var u in Model)
+                @if (Model != null && Model.Any())
                 {
-                    var badgeRol = u.Rol switch
+                    @foreach (var u in Model)
                     {
-                        "Administrador" => "bg-danger",
-                        "Supervisor" => "bg-primary",
-                        "Auxiliar" => "bg-info text-dark",
-                        _ => "bg-secondary"
-                    };
+                        var usuarioAlias = u.Correo.Contains("@") ? u.Correo.Split('@')[0] : u.Correo;
 
-                    var badgeEstado = u.Estado switch
-                    {
-                        "Activo" => "bg-success",
-                        "Bloqueado" => "bg-danger",
-                        "Inactivo" => "bg-secondary",
-                        _ => "bg-light text-dark"
-                    };
-
-                    <tr>
-                        <td class="ps-4 fw-bold text-dark">@u.NombreCompleto</td>
-                        <td>@u.Correo</td>
-                        <td><span class="badge @badgeRol">@u.Rol</span></td>
-                        <td><span class="badge @badgeEstado rounded-pill">@u.Estado</span></td>
-                        <td>
-                            @if (u.IntentosFallidos > 0)
-                            {
-                                <span class="badge bg-warning text-dark">@u.IntentosFallidos / 5</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">0</span>
-                            }
-                        </td>
-                        <td class="small text-muted">@(u.UltimoAcceso?.ToString("dd/MM/yyyy HH:mm") ?? "Sin registros")</td>
-                        <td class="text-end pe-4">
-                            <div class="btn-group btn-group-sm">
-                                <a asp-action="Editar" asp-route-id="@u.Id" class="btn btn-outline-secondary" title="Editar Rol / Credenciales">
-                                    <i class="bi bi-pencil-square"></i> Editar
+                        <tr>
+                            <td class="fw-semibold">@usuarioAlias</td>
+                            <td>@u.NombreCompleto</td>
+                            <td>@u.Rol</td>
+                            <td>@u.Estado</td>
+                            <td class="text-center">
+                                <a asp-action="Editar" asp-route-id="@u.Id" class="btn-pf-blue" style="padding: 4px 20px; font-size: 14px;">
+                                    Editar
                                 </a>
-                                @if (u.Estado == "Bloqueado")
-                                {
-                                    <form asp-action="Desbloquear" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@u.Id" />
-                                        <button type="submit" class="btn btn-success" title="Desbloquear Cuenta">
-                                            <i class="bi bi-unlock-fill"></i> Desbloquear
-                                        </button>
-                                    </form>
-                                }
-                            </div>
-                        </td>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No hay usuarios registrados.</td>
                     </tr>
                 }
             </tbody>

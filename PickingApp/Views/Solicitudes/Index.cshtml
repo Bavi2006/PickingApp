@@ -1,34 +1,21 @@
-﻿@model IEnumerable<PickingApp.Models.Solicitud>
+@model IEnumerable<PickingApp.Models.Solicitud>
 @{
-    ViewData["Title"] = "Bandeja de Solicitudes";
-    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Supervisor";
+    ViewData["Title"] = "Solicitudes";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">Bandeja de Solicitudes</h2>
-        <p class="text-muted mb-0">Gestión, aprobación y rechazo de solicitudes de empleados, ubicaciones y cuentas</p>
-    </div>
-    <div class="btn-group">
-        <a asp-action="Index" class="btn btn-sm @(string.IsNullOrEmpty(ViewBag.FiltroEstado) ? "btn-primary" : "btn-outline-secondary")">Todas</a>
-        <a asp-action="Index" asp-route-estado="Pendiente" class="btn btn-sm @(ViewBag.FiltroEstado == "Pendiente" ? "btn-primary" : "btn-outline-secondary")">Pendientes</a>
-        <a asp-action="Index" asp-route-estado="Aprobada" class="btn btn-sm @(ViewBag.FiltroEstado == "Aprobada" ? "btn-primary" : "btn-outline-secondary")">Aprobadas</a>
-        <a asp-action="Index" asp-route-estado="Rechazada" class="btn btn-sm @(ViewBag.FiltroEstado == "Rechazada" ? "btn-primary" : "btn-outline-secondary")">Rechazadas</a>
-    </div>
-</div>
+<h1 class="pf-page-title">Solicitudes</h1>
 
-<div class="card border-0 shadow-sm rounded-4">
+<div class="mockup-card">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+        <table class="mockup-table">
+            <thead>
                 <tr>
-                    <th class="ps-4">ID</th>
-                    <th>Tipo de Solicitud</th>
+                    <th>ID</th>
+                    <th>Tipo</th>
                     <th>Solicitante</th>
-                    <th>Fecha Solicitud</th>
+                    <th>Fecha</th>
                     <th>Estado</th>
-                    <th>Detalle</th>
-                    <th class="text-end pe-4">Acciones</th>
+                    <th class="text-center">Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,113 +23,25 @@
                 {
                     @foreach (var s in Model)
                     {
-                        var badgeEstado = s.Estado switch
+                        var tipoDisplay = s.TipoSolicitud switch
                         {
-                            "Pendiente" => "bg-warning text-dark",
-                            "Aprobada" => "bg-success",
-                            "Rechazada" => "bg-danger",
-                            _ => "bg-secondary"
+                            "RegistroEmpleado" => "Registro empleado",
+                            "EdicionEmpleado" => "Editar empleado",
+                            "InactivarEmpleado" => "Inactivar empleado",
+                            "CreacionUbicacion" => "Creación ubicación",
+                            _ => s.TipoSolicitud
                         };
 
                         <tr>
-                            <td class="ps-4 fw-bold">#@s.Id</td>
-                            <td>
-                                <span class="fw-semibold text-primary">@s.TipoSolicitud</span>
-                            </td>
-                            <td>
-                                <div>@(s.UsuarioSolicitante?.NombreCompleto ?? "N/A")</div>
-                                <div class="small text-muted">@(s.UsuarioSolicitante?.Correo ?? "")</div>
-                            </td>
-                            <td class="small">@s.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td><span class="badge @badgeEstado rounded-pill">@s.Estado</span></td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalDetalle_@s.Id">
-                                    <i class="bi bi-file-text"></i> Ver Datos
-                                </button>
-
-                                <!-- Modal Ver Datos -->
-                                <div class="modal fade text-start" id="modalDetalle_@s.Id" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-scrollable">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title fw-bold">Detalle de Solicitud #@s.Id</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <h6 class="fw-bold text-primary">Tipo: @s.TipoSolicitud</h6>
-                                                <div class="mb-3">
-                                                    <strong>Solicitado por:</strong> @(s.UsuarioSolicitante?.NombreCompleto) (@(s.UsuarioSolicitante?.Rol))
-                                                </div>
-                                                <div class="mb-3">
-                                                    <strong>Datos enviados:</strong>
-                                                    <pre class="bg-light p-3 rounded-3 small mt-1">@s.DatosJson</pre>
-                                                </div>
-                                                @if (s.Estado == "Rechazada")
-                                                {
-                                                    <div class="alert alert-danger mb-0">
-                                                        <strong>Motivo del rechazo:</strong> @s.MotivoRechazo
-                                                    </div>
-                                                }
-                                                @if (s.UsuarioResponde != null)
-                                                {
-                                                    <div class="small text-muted mt-2">
-                                                        Respondido por: @s.UsuarioResponde.NombreCompleto el @s.FechaRespuesta?.ToString("dd/MM/yyyy HH:mm")
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="text-end pe-4">
-                                @if (s.Estado == "Pendiente")
-                                {
-                                    <div class="btn-group btn-group-sm">
-                                        <form asp-action="Aprobar" method="post" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@s.Id" />
-                                            <button type="submit" class="btn btn-primary" title="Aprobar Solicitud">
-                                                <i class="bi bi-check-lg"></i> Aprobar
-                                            </button>
-                                        </form>
-                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalRechazar_@s.Id" title="Rechazar Solicitud">
-                                            <i class="bi bi-x-lg"></i> Rechazar
-                                        </button>
-                                    </div>
-
-                                    <!-- Modal Rechazar -->
-                                    <div class="modal fade text-start" id="modalRechazar_@s.Id" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <form asp-action="Rechazar" method="post">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@s.Id" />
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title fw-bold text-danger">Rechazar Solicitud #@s.Id</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-semibold">Motivo del rechazo (Obligatorio):</label>
-                                                            <textarea name="motivoRechazo" class="form-control" rows="3" required placeholder="Explique las razones por las cuales se desestima la solicitud"></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-danger">Confirmar Rechazo</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">Atendida</span>
-                                }
+                            <td class="fw-semibold">SOL-@s.Id</td>
+                            <td>@tipoDisplay</td>
+                            <td>@(s.UsuarioSolicitante?.NombreCompleto ?? "Pedro López")</td>
+                            <td>@s.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                            <td>@s.Estado</td>
+                            <td class="text-center">
+                                <a asp-action="Revisar" asp-route-id="@s.Id" class="btn-pf-blue" style="padding: 4px 20px; font-size: 14px;">
+                                    Revisar
+                                </a>
                             </td>
                         </tr>
                     }
@@ -150,10 +49,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                            No hay solicitudes en este filtro.
-                        </td>
+                        <td colspan="6" class="text-center text-muted py-4">No hay solicitudes registradas.</td>
                     </tr>
                 }
             </tbody>

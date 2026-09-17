@@ -1,81 +1,68 @@
-﻿@model PickingApp.Models.ViewModels.LoginViewModel
+@model PickingApp.Models.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["Title"] = "Iniciar sesión";
     Layout = "_LayoutLogin";
 }
 
-<div class="card shadow-lg border-0 rounded-4">
-    <div class="card-body p-4 p-md-5">
-        <div class="text-center mb-4">
-            <div class="bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px;">
-                <i class="bi bi-box-seam-fill fs-2"></i>
-            </div>
-            <h3 class="fw-bold text-dark">PickingApp</h3>
-            <p class="text-muted small">Gestión y Asignación Eficiente de Pedidos</p>
+<div class="pf-login-card">
+    <div class="text-center mb-4">
+        <!-- PickFlow Logo matching Slide 1 -->
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-2">
+            <!-- Blue rack / shelves -->
+            <path d="M22 14L30 10L38 14L30 18L22 14Z" stroke="#00204A" stroke-width="2.5" stroke-linejoin="round" />
+            <path d="M22 24L30 20L38 24L30 28L22 24Z" stroke="#00204A" stroke-width="2.5" stroke-linejoin="round" />
+            <path d="M22 34L30 30L38 34L30 38L22 34Z" stroke="#00204A" stroke-width="2.5" stroke-linejoin="round" />
+            <path d="M22 14V44" stroke="#00204A" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M30 18V48" stroke="#00204A" stroke-width="2.5" stroke-linecap="round" />
+            <!-- Orange curved picking path arrow -->
+            <path d="M34 14H42C46.4183 14 50 17.5817 50 22C50 26.4183 46.4183 30 42 30H38V42" stroke="#EB7D26" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M34 38L38 42L42 38" stroke="#EB7D26" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <h2 style="font-weight: 800; font-size: 30px; margin: 0; letter-spacing: -0.5px;">
+            <span style="color: #00204A;">Pick</span><span style="color: #EB7D26;">flow</span>
+        </h2>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+    {
+        <div class="alert alert-danger py-2 text-start small mb-3" role="alert">
+            @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success py-2 text-start small mb-3" role="alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-2">
+            <input asp-for="Correo" class="pf-login-input" placeholder="Usuario" autocomplete="username" />
+            <span asp-validation-for="Correo" class="text-danger small d-block text-start mb-2"></span>
         </div>
 
-        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
-        {
-            <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
-                <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
-                <div>
-                    @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
-                    {
-                        <div>@error.ErrorMessage</div>
-                    }
-                </div>
-            </div>
-        }
-
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
-                <i class="bi bi-check-circle-fill flex-shrink-0 me-2"></i>
-                <div>@TempData["SuccessMessage"]</div>
-            </div>
-        }
-
-        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-            @Html.AntiForgeryToken()
-
-            <div class="mb-3">
-                <label asp-for="Correo" class="form-label fw-semibold text-secondary">Correo Electrónico</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
-                    <input asp-for="Correo" class="form-control border-start-0 ps-0" placeholder="nombre@empresa.com" autocomplete="username" />
-                </div>
-                <span asp-validation-for="Correo" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-3">
-                <div class="d-flex justify-content-between">
-                    <label asp-for="Password" class="form-label fw-semibold text-secondary">Contraseña</label>
-                    <a asp-action="SolicitarRecuperacion" class="small text-decoration-none text-primary">¿Olvidaste tu contraseña?</a>
-                </div>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
-                    <input asp-for="Password" class="form-control border-start-0 ps-0" placeholder="••••••••" autocomplete="current-password" />
-                </div>
-                <span asp-validation-for="Password" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-4 form-check">
-                <input asp-for="RememberMe" class="form-check-input" />
-                <label asp-for="RememberMe" class="form-check-label text-secondary small">Recordar mi sesión en este equipo</label>
-            </div>
-
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary py-2 fw-semibold shadow-sm">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
-                </button>
-            </div>
-        </form>
-
-        <div class="mt-4 pt-3 border-top text-center text-muted small">
-            <div><strong>Cuentas demo para pruebas:</strong></div>
-            <div class="mt-1"><code>admin@pickingapp.com</code> / <code>Admin123*</code></div>
-            <div><code>supervisor@pickingapp.com</code> / <code>Super123*</code></div>
-            <div><code>auxiliar@pickingapp.com</code> / <code>Aux123*</code></div>
+        <div class="mb-2">
+            <input asp-for="Password" class="pf-login-input" placeholder="Contraseña" type="password" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="text-danger small d-block text-start mb-2"></span>
         </div>
+
+        <button type="submit" class="btn-pf-login">
+            Iniciar sesión
+        </button>
+
+        <div>
+            <a asp-action="SolicitarRecuperacion" class="pf-login-link">¿Olvidaste tu contraseña?</a>
+        </div>
+    </form>
+
+    <div class="mt-4 pt-3 border-top text-center text-muted" style="font-size: 12px;">
+        <span class="text-secondary">Pruebas: <code>admin@pickingapp.com</code> / <code>Admin123*</code></span>
     </div>
 </div>
