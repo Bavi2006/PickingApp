@@ -6,21 +6,8 @@
 
 <div class="pf-login-card">
     <div class="text-center mb-4">
-        <!-- PickFlow Logo matching Slide 1 -->
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-2">
-            <!-- Blue rack / shelves -->
-            <path d="M22 14L30 10L38 14L30 18L22 14Z" stroke="#00204A" stroke-width="2.5" stroke-linejoin="round" />
-            <path d="M22 24L30 20L38 24L30 28L22 24Z" stroke="#00204A" stroke-width="2.5" stroke-linejoin="round" />
-            <path d="M22 34L30 30L38 34L30 38L22 34Z" stroke="#00204A" stroke-width="2.5" stroke-linejoin="round" />
-            <path d="M22 14V44" stroke="#00204A" stroke-width="2.5" stroke-linecap="round" />
-            <path d="M30 18V48" stroke="#00204A" stroke-width="2.5" stroke-linecap="round" />
-            <!-- Orange curved picking path arrow -->
-            <path d="M34 14H42C46.4183 14 50 17.5817 50 22C50 26.4183 46.4183 30 42 30H38V42" stroke="#EB7D26" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M34 38L38 42L42 38" stroke="#EB7D26" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <h2 style="font-weight: 800; font-size: 30px; margin: 0; letter-spacing: -0.5px;">
-            <span style="color: #00204A;">Pick</span><span style="color: #EB7D26;">flow</span>
-        </h2>
+        <!-- PickFlow Logo -->
+        <img src="~/images/pickflow-logo.jpg" alt="PickFlow" style="height: 110px; object-fit: contain;" class="mb-1" />
     </div>
 
     @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)

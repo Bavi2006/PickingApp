@@ -1,7 +1,8 @@
-﻿using QuestPDF.Fluent;
+using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using PickingApp.Models;
+using System.IO;
 
 namespace PickingApp.Services
 {
@@ -21,7 +22,7 @@ namespace PickingApp.Services
                     page.Size(PageSizes.A4);
                     page.Margin(1.5f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial"));
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Lato"));
 
                     page.Header().Element(c => ComposeHeader(c, "Reporte de Tiempos de Picking por Empleado (CU-32)", fechaInicio, fechaFin));
 
@@ -77,7 +78,7 @@ namespace PickingApp.Services
                     page.Size(PageSizes.A4);
                     page.Margin(1.5f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial"));
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Lato"));
 
                     page.Header().Element(c => ComposeHeader(c, "Reporte General de Tiempos de Entrega (CU-33)", fechaInicio, fechaFin));
 
@@ -127,7 +128,7 @@ namespace PickingApp.Services
                     page.Size(PageSizes.A4.Landscape());
                     page.Margin(1.5f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Arial"));
+                    page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Lato"));
 
                     page.Header().Element(c => ComposeHeader(c, "Reporte Consolidado de Pedidos por Periodo (CU-34)", fechaInicio, fechaFin));
 
@@ -186,7 +187,7 @@ namespace PickingApp.Services
                     page.Size(PageSizes.A4.Landscape());
                     page.Margin(1.5f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Arial"));
+                    page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Lato"));
 
                     page.Header().Element(c => ComposeHeader(c, "Reporte de Pedidos Completados, Cancelados y Reasignados (CU-35)", fechaInicio, fechaFin));
 
@@ -239,21 +240,47 @@ namespace PickingApp.Services
 
         private static void ComposeHeader(IContainer container, string titulo, DateTime fechaInicio, DateTime fechaFin)
         {
+            // Ruta absoluta al logo en wwwroot
+            var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "images", "pickflow-logo.jpg");
+
             container.Column(column =>
             {
                 column.Item().Row(row =>
                 {
-                    row.RelativeItem().Column(col =>
+                    // Logo + nombre de marca
+                    row.ConstantItem(160).Row(brand =>
                     {
-                        col.Item().Text("PickingApp - Sistema de Gestión Logística").FontSize(16).Bold().FontColor("#0D6EFD");
-                        col.Item().Text(titulo).FontSize(13).SemiBold();
-                        col.Item().Text($"Periodo: {fechaInicio:dd/MM/yyyy} hasta {fechaFin:dd/MM/yyyy}").FontSize(9).FontColor(Colors.Grey.Medium);
+                        if (File.Exists(logoPath))
+                        {
+                            brand.ConstantItem(52).Image(logoPath).FitArea();
+                        }
+                        brand.RelativeItem().PaddingLeft(6).Column(txt =>
+                        {
+                            txt.Item().Text(t =>
+                            {
+                                t.Span("Pick").Bold().FontSize(18).FontColor("#1C3A6B");
+                                t.Span("flow").Bold().FontSize(18).FontColor("#E87722");
+                            });
+                            txt.Item().Text("Sistema de Gestión Logística")
+                               .FontSize(7).FontColor(Colors.Grey.Medium);
+                        });
                     });
 
-                    row.ConstantItem(140).Column(col =>
+                    // Título y periodo
+                    row.RelativeItem().PaddingLeft(12).Column(col =>
                     {
-                        col.Item().AlignRight().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor(Colors.Grey.Medium);
-                        col.Item().AlignRight().Text("Documento Oficial").FontSize(8).FontColor(Colors.Grey.Medium);
+                        col.Item().Text(titulo).FontSize(11).SemiBold().FontColor("#1C3A6B");
+                        col.Item().Text($"Periodo: {fechaInicio:dd/MM/yyyy} – {fechaFin:dd/MM/yyyy}")
+                           .FontSize(9).FontColor(Colors.Grey.Medium);
+                    });
+
+                    // Fecha de generación
+                    row.ConstantItem(130).Column(col =>
+                    {
+                        col.Item().AlignRight().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}")
+                           .FontSize(8).FontColor(Colors.Grey.Medium);
+                        col.Item().AlignRight().Text("Documento Oficial")
+                           .FontSize(8).FontColor(Colors.Grey.Medium);
                     });
                 });
 
@@ -265,7 +292,7 @@ namespace PickingApp.Services
         {
             container.Row(row =>
             {
-                row.RelativeItem().Text("PickingApp &bull; Reporte exportado en formato PDF conforme a CU-36").FontSize(8).FontColor(Colors.Grey.Medium);
+                row.RelativeItem().Text("PickFlow • Reporte exportado en formato PDF conforme a CU-36").FontSize(8).FontColor(Colors.Grey.Medium);
                 row.ConstantItem(100).AlignRight().Text(x =>
                 {
                     x.Span("Página ");

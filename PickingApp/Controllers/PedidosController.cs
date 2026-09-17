@@ -175,11 +175,15 @@ namespace PickingApp.Controllers
 
             if (pedido == null) return NotFound();
 
-            var empleados = await _context.Empleados
+            // MesesExperiencia es [NotMapped] (propiedad calculada en C#), por lo que
+            // no puede ser traducida a SQL por EF Core. Se trae primero a memoria
+            // y luego se ordena en el lado del cliente.
+            var empleados = (await _context.Empleados
                 .Where(e => e.Activo)
+                .ToListAsync())
                 .OrderByDescending(e => e.EstadoDisponibilidad == "Disponible")
                 .ThenByDescending(e => e.MesesExperiencia)
-                .ToListAsync();
+                .ToList();
 
             ViewBag.Pedido = pedido;
             return View(empleados);
