@@ -1,0 +1,65 @@
+﻿@model PickingApp.Models.Usuario
+@{
+    ViewData["Title"] = "Editar Usuario y Rol";
+}
+
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="bi bi-person-gear me-2"></i> Editar Usuario: @Model.Correo
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Editar" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nombre Completo</label>
+                            <input type="text" name="nombreCompleto" value="@Model.NombreCompleto" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Correo Electrónico (No editable)</label>
+                            <input type="text" class="form-control bg-light" value="@Model.Correo" disabled />
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Rol Asignado (CU-05)</label>
+                                <select name="rol" class="form-select">
+                                    <option value="Auxiliar" selected="@(Model.Rol == "Auxiliar")">Auxiliar</option>
+                                    <option value="Supervisor" selected="@(Model.Rol == "Supervisor")">Supervisor</option>
+                                    <option value="Administrador" selected="@(Model.Rol == "Administrador")">Administrador</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Estado de Cuenta</label>
+                                <select name="estado" class="form-select">
+                                    <option value="Activo" selected="@(Model.Estado == "Activo")">Activo</option>
+                                    <option value="Bloqueado" selected="@(Model.Estado == "Bloqueado")">Bloqueado</option>
+                                    <option value="Inactivo" selected="@(Model.Estado == "Inactivo")">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Restablecer Contraseña (Opcional)</label>
+                            <input type="password" name="nuevaPassword" class="form-control" placeholder="Dejar en blanco si no desea cambiarla" />
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check2 me-1"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+﻿@model PickingApp.Models.Empleado
+@{
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Auxiliar";
+    ViewData["Title"] = userRole == "Auxiliar" ? "Solicitar Registro de Empleado" : "Registrar Empleado";
+}
+
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="bi bi-person-plus-fill me-2"></i> @ViewData["Title"]
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (userRole == "Auxiliar")
+                    {
+                        <div class="alert alert-info small mb-4">
+                            <i class="bi bi-info-circle-fill me-2"></i> Como Auxiliar, esta acción enviará una solicitud al Administrador o Supervisor para su debida aprobación (CU-07).
+                        </div>
+                    }
+
+                    <form asp-action="Crear" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Identificacion" class="form-label fw-semibold">Número de Identificación</label>
+                                <input asp-for="Identificacion" class="form-control" placeholder="C.C. / D.N.I." />
+                                <span asp-validation-for="Identificacion" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="NombreCompleto" class="form-label fw-semibold">Nombre Completo</label>
+                                <input asp-for="NombreCompleto" class="form-control" placeholder="Nombres y Apellidos" />
+                                <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Correo" class="form-label fw-semibold">Correo Electrónico (Opcional)</label>
+                                <input asp-for="Correo" class="form-control" placeholder="empleado@empresa.com" />
+                                <span asp-validation-for="Correo" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="FechaIngreso" class="form-label fw-semibold">Fecha de Ingreso</label>
+                                <input asp-for="FechaIngreso" type="date" class="form-control" />
+                                <div class="form-text small">Se utiliza para calcular automáticamente los meses de experiencia.</div>
+                                <span asp-validation-for="FechaIngreso" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label asp-for="JornadaLaboral" class="form-label fw-semibold">Jornada</label>
+                                <select asp-for="JornadaLaboral" class="form-select">
+                                    <option value="Diurna">Diurna (8:00 - 17:00)</option>
+                                    <option value="Tarde">Tarde (14:00 - 22:00)</option>
+                                    <option value="Nocturna">Nocturna (22:00 - 06:00)</option>
+                                    <option value="Mixta">Mixta</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="HorarioEntrada" class="form-label fw-semibold">Hora de Entrada</label>
+                                <input asp-for="HorarioEntrada" type="time" class="form-control" />
+                                <span asp-validation-for="HorarioEntrada" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="HorarioSalida" class="form-label fw-semibold">Hora de Salida</label>
+                                <input asp-for="HorarioSalida" type="time" class="form-control" />
+                                <span asp-validation-for="HorarioSalida" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check2 me-1"></i> @(userRole == "Auxiliar" ? "Enviar Solicitud" : "Registrar Empleado")
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

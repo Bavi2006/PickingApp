@@ -1,0 +1,76 @@
+﻿@model IEnumerable<PickingApp.Models.ConfiguracionSistema>
+@{
+    ViewData["Title"] = "Configuración del Sistema";
+    var configs = Model.ToDictionary(c => c.Clave, c => c.Valor);
+}
+
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="bi bi-sliders me-2"></i> Configuración de Parámetros y Auditoría (CU-39, RNF-07)
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="GuardarConfiguracion" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-journal-text me-1"></i> Auditoría y Registro (LOG)</h6>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Registro de LOG Habilitado</label>
+                            <select name="configuraciones[LogHabilitado]" class="form-select">
+                                <option value="true" selected="@(configs.GetValueOrDefault("LogHabilitado") == "true")">Habilitado (Recomendado)</option>
+                                <option value="false" selected="@(configs.GetValueOrDefault("LogHabilitado") == "false")">Deshabilitado</option>
+                            </select>
+                            <div class="form-text small">Permite habilitar o deshabilitar temporalmente la captura de eventos en la tabla de logs.</div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-shield-check me-1"></i> Parámetros de Seguridad y Sesión</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Cierre de Sesión por Inactividad (Minutos)</label>
+                                <input type="number" name="configuraciones[MinutosInactividadSesion]" value="@configs.GetValueOrDefault("MinutosInactividadSesion", "10")" class="form-control" min="1" max="60" />
+                                <div class="form-text small">Estándar reglamentario: 10 minutos.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Intentos Fallidos antes de Bloqueo</label>
+                                <input type="number" name="configuraciones[MaxIntentosFallidos]" value="@configs.GetValueOrDefault("MaxIntentosFallidos", "5")" class="form-control" min="3" max="10" />
+                                <div class="form-text small">Estándar reglamentario: 5 intentos consecutivos.</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-cpu me-1"></i> Reglas de Asignación y Operación</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Margen de Inicio (Minutos)</label>
+                                <input type="number" name="configuraciones[MargenInicioMinutos]" value="@configs.GetValueOrDefault("MargenInicioMinutos", "2")" class="form-control" min="0" max="15" />
+                                <div class="form-text small">Margen reglamentario: 2 min.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Meses Exp. para Advertencia</label>
+                                <input type="number" name="configuraciones[MesesExperienciaAdvertencia]" value="@configs.GetValueOrDefault("MesesExperienciaAdvertencia", "6")" class="form-control" min="1" max="24" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Ubicaciones para Advertencia</label>
+                                <input type="number" name="configuraciones[MaxUbicacionesAdvertencia]" value="@configs.GetValueOrDefault("MaxUbicacionesAdvertencia", "10")" class="form-control" min="1" max="50" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check2 me-1"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

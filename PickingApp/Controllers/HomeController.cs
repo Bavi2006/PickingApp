@@ -1,21 +1,40 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PickingApp.Data;
 using PickingApp.Models;
 
 namespace PickingApp.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var hoy = DateTime.Today;
+
+            ViewBag.TotalPendientes = await _context.Pedidos.CountAsync(p => p.Estado == "Pendiente");
+            ViewBag.TotalEnProceso = await _context.Pedidos.CountAsync(p => p.Estado == "Asignado" || p.Estado == "EnProceso");
+            ViewBag.TotalCompletadosHoy = await _context.Pedidos.CountAsync(p => p.Estado == "Completado" && p.FechaFinalizacion >= hoy);
+            ViewBag.EmpleadosDisponibles = await _context.Empleados.CountAsync(e => e.Activo && e.EstadoDisponibilidad == "Disponible");
+            ViewBag.TotalBodegas = await _context.Bodegas.CountAsync(b => b.Activa);
+
+            var ultimosPedidos = await _context.Pedidos
+                .Include(p => p.Bodega)
+                .Include(p => p.Empleado)
+                .OrderByDescending(p => p.FechaCarga)
+                .Take(5)
+                .ToListAsync();
+
+            return View(ultimosPedidos);
         }
 
         public IActionResult Privacy()

@@ -1,0 +1,106 @@
+﻿@{
+    ViewData["Title"] = "Módulo de Reportes";
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Módulo de Reportes y Estadísticas</h2>
+    <p class="text-muted mb-0">Consulte indicadores clave y exporte reportes oficiales en formato PDF (CU-32 a CU-37)</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary text-white p-3 rounded-circle me-3">
+                        <i class="bi bi-person-lines-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Tiempos por Empleado (CU-32)</h5>
+                        <p class="text-muted small mb-0">Rendimiento, promedio, tiempo mínimo y máximo de preparación</p>
+                    </div>
+                </div>
+                <p class="small text-secondary flex-grow-1">
+                    Permite analizar la productividad y velocidad de cada auxiliar de picking sobre pedidos completados.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-action="TiemposPorEmpleado" class="btn btn-primary w-100">
+                        <i class="bi bi-eye me-1"></i> Consultar Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info text-white p-3 rounded-circle me-3">
+                        <i class="bi bi-buildings fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Tiempos Generales de Entrega (CU-33)</h5>
+                        <p class="text-muted small mb-0">Tiempos medios de entrega consolidados por bodega y globales</p>
+                    </div>
+                </div>
+                <p class="small text-secondary flex-grow-1">
+                    Brinda una visión macro sobre los tiempos de respuesta y despacho por cada centro logístico.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-action="TiemposGenerales" class="btn btn-primary w-100">
+                        <i class="bi bi-eye me-1"></i> Consultar Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success text-white p-3 rounded-circle me-3">
+                        <i class="bi bi-calendar3 fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Pedidos por Periodo (CU-34)</h5>
+                        <p class="text-muted small mb-0">Volumen y estado de pedidos cargados en un rango de fechas</p>
+                    </div>
+                </div>
+                <p class="small text-secondary flex-grow-1">
+                    Muestra el flujo de trabajo cargado por el área de planeación con sus estados actuales.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-action="PedidosPorPeriodo" class="btn btn-primary w-100">
+                        <i class="bi bi-eye me-1"></i> Consultar Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning text-dark p-3 rounded-circle me-3">
+                        <i class="bi bi-arrow-left-right fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Completados, Cancelados y Reasignados (CU-35)</h5>
+                        <p class="text-muted small mb-0">Auditoría de novedades, cancelaciones y reasignaciones con motivos</p>
+                    </div>
+                </div>
+                <p class="small text-secondary flex-grow-1">
+                    Permite identificar cuellos de botella e incidencias operativas justificadas por el supervisor.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-action="CompletadosCanceladosReasignados" class="btn btn-primary w-100">
+                        <i class="bi bi-eye me-1"></i> Consultar Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

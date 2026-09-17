@@ -1,0 +1,127 @@
+﻿@model IEnumerable<PickingApp.Models.LogSistema>
+@{
+    ViewData["Title"] = "Historial de LOG del Sistema";
+    var modulos = ViewBag.Modulos as List<string>;
+    bool logHabilitado = (bool)ViewBag.LogHabilitado;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Historial y Auditoría (LOG)</h2>
+        <p class="text-muted mb-0">Registro inmutable de actividades, cambios y operaciones de seguridad (CU-38)</p>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge @(logHabilitado ? "bg-success" : "bg-danger") d-flex align-items-center px-3 fs-6 rounded-pill">
+            <i class="bi @(logHabilitado ? "bi-check-circle" : "bi-pause-circle") me-1"></i> LOG @(logHabilitado ? "Activo" : "Pausado")
+        </span>
+        <button type="button" class="btn btn-danger shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEliminarLogs">
+            <i class="bi bi-trash3 me-1"></i> Depurar LOGs (CU-40)
+        </button>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Módulo</label>
+                <select name="modulo" class="form-select">
+                    <option value="">Todos los Módulos</option>
+                    @if (modulos != null)
+                    {
+                        @foreach (var m in modulos)
+                        {
+                            <option value="@m" selected="@(ViewBag.ModuloFiltro == m)">@m</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Usuario</label>
+                <input type="text" name="usuario" value="@ViewBag.UsuarioFiltro" class="form-control" placeholder="Buscar por correo..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Fecha</label>
+                <input type="date" name="fecha" value="@ViewBag.FechaFiltro" class="form-control" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel-fill me-1"></i> Filtrar
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary" title="Limpiar">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Fecha y Hora</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Módulo</th>
+                    <th>Acción</th>
+                    <th class="pe-4">Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var l in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 small text-muted">@l.FechaHora.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td class="fw-semibold">@l.Usuario</td>
+                            <td><span class="badge bg-light text-dark border">@l.Rol</span></td>
+                            <td><span class="badge bg-primary-subtle text-primary">@l.Modulo</span></td>
+                            <td class="fw-bold">@l.Accion</td>
+                            <td class="pe-4 small">@l.Detalle</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            No se encontraron registros en el historial de auditoría.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Eliminar Logs (CU-40) -->
+<div class="modal fade" id="modalEliminarLogs" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="EliminarLogs" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-trash3-fill me-2"></i>Depurar Registros de LOG</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted">
+                        Esta acción eliminará registros antiguos de auditoría para optimizar la base de datos.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Eliminar registros anteriores a (Opcional):</label>
+                        <input type="date" name="hastaFecha" class="form-control" />
+                        <div class="form-text small">Si se deja vacío, se eliminarán todos los registros de auditoría existentes.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Depuración</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

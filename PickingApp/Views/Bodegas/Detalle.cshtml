@@ -1,0 +1,127 @@
+﻿@model PickingApp.Models.Bodega
+@{
+    ViewData["Title"] = $"Bodega {Model.Codigo} - Ubicaciones";
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Auxiliar";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Bodegas</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Codigo</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1">@Model.Nombre (@Model.Codigo)</h2>
+            <p class="text-muted mb-0">@(Model.Descripcion ?? "Gestión de ubicaciones físicas para esta bodega")</p>
+        </div>
+        <div class="d-flex gap-2">
+            @if (userRole == "Administrador" || userRole == "Supervisor")
+            {
+                <a asp-action="CrearUbicacion" asp-route-bodegaId="@Model.Id" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Nueva Ubicación
+                </a>
+            }
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-pin-map-fill text-primary me-2"></i> Ubicaciones Registradas (@Model.Ubicaciones.Count)
+        </h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Código Ubicación</th>
+                    <th>Pasillo</th>
+                    <th>Estante</th>
+                    <th>Nivel</th>
+                    <th>Estado</th>
+                    @if (userRole == "Administrador" || userRole == "Supervisor")
+                    {
+                        <th class="text-end pe-4">Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Ubicaciones.Any())
+                {
+                    @foreach (var u in Model.Ubicaciones)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-semibold text-primary">
+                                <i class="bi bi-geo-fill me-1 text-muted"></i> @u.CodigoUbicacion
+                            </td>
+                            <td>@u.Pasillo</td>
+                            <td>@u.Estante</td>
+                            <td>@u.Nivel</td>
+                            <td>
+                                <span class="badge @(u.Activa ? "bg-success" : "bg-secondary") rounded-pill">
+                                    @(u.Activa ? "Activa" : "Inactiva")
+                                </span>
+                            </td>
+                            @if (userRole == "Administrador" || userRole == "Supervisor")
+                            {
+                                <td class="text-end pe-4">
+                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar_@u.Id">
+                                        <i class="bi bi-trash"></i> @(userRole == "Administrador" ? "Eliminar" : "Solicitar Eliminación")
+                                    </button>
+
+                                    <!-- Modal de confirmación o solicitud -->
+                                    <div class="modal fade" id="modalEliminar_@u.Id" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content text-start">
+                                                <form asp-action="EliminarUbicacion" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@u.Id" />
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold text-danger">
+                                                            @(userRole == "Administrador" ? "Confirmar Eliminación" : "Solicitar Eliminación de Ubicación")
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>¿Está seguro de @(userRole == "Administrador" ? "eliminar" : "solicitar la eliminación de") la ubicación <strong>@u.CodigoUbicacion</strong>?</p>
+                                                        @if (userRole == "Supervisor")
+                                                        {
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Motivo de la solicitud (Obligatorio):</label>
+                                                                <textarea name="motivo" class="form-control" rows="3" required placeholder="Indique la justificación para el Administrador"></textarea>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-danger">
+                                                            @(userRole == "Administrador" ? "Eliminar Definitivamente" : "Enviar Solicitud")
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            Esta bodega aún no tiene ubicaciones configuradas.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

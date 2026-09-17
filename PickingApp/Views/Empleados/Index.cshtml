@@ -1,0 +1,147 @@
+﻿@model IEnumerable<PickingApp.Models.Empleado>
+@{
+    ViewData["Title"] = "Gestión de Empleados";
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Auxiliar";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Gestión de Empleados</h2>
+        <p class="text-muted mb-0">Control de personal de picking, turnos, experiencia y disponibilidad</p>
+    </div>
+    <a asp-action="Crear" class="btn btn-primary shadow-sm">
+        <i class="bi bi-person-plus-fill me-1"></i> @(userRole == "Auxiliar" ? "Solicitar Registro de Empleado" : "Nuevo Empleado")
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Identificación</th>
+                    <th>Nombre Completo</th>
+                    <th>Jornada / Horario</th>
+                    <th>Experiencia Calculada</th>
+                    <th>Tiempo Promedio</th>
+                    <th>Disponibilidad</th>
+                    <th>Estado</th>
+                    <th class="text-end pe-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var emp in Model)
+                    {
+                        var completados = emp.PedidosAsignados
+                            .Where(p => p.Estado == "Completado" && p.TiempoProcesamientoMinutos.HasValue)
+                            .ToList();
+
+                        var promedio = completados.Any() 
+                            ? Math.Round(completados.Average(p => p.TiempoProcesamientoMinutos!.Value), 1) + " min" 
+                            : "Sin histórico";
+
+                        var badgeDisp = emp.EstadoDisponibilidad switch
+                        {
+                            "Disponible" => "bg-success",
+                            "EnPicking" => "bg-primary",
+                            "FueraDeJornada" => "bg-warning text-dark",
+                            _ => "bg-secondary"
+                        };
+
+                        <tr>
+                            <td class="ps-4 fw-semibold text-dark">@emp.Identificacion</td>
+                            <td>
+                                <div class="fw-bold text-primary">@emp.NombreCompleto</div>
+                                <div class="small text-muted">@(emp.Correo ?? "Sin correo")</div>
+                            </td>
+                            <td>
+                                <div class="small fw-semibold">@emp.JornadaLaboral</div>
+                                <div class="small text-muted">@emp.HorarioEntrada.ToString(@"hh\:mm") - @emp.HorarioSalida.ToString(@"hh\:mm")</div>
+                            </td>
+                            <td>
+                                <div><strong>@emp.MesesExperiencia meses</strong></div>
+                                @if (emp.TieneMenosDeSeisMeses)
+                                {
+                                    <span class="badge bg-warning text-dark small" title="Menos de 6 meses de experiencia">
+                                        <i class="bi bi-exclamation-triangle"></i> &lt; 6 meses
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success-subtle text-success small">Experimentado</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-stopwatch me-1"></i> @promedio
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge @badgeDisp rounded-pill">@emp.EstadoDisponibilidad</span>
+                            </td>
+                            <td>
+                                <span class="badge @(emp.Activo ? "bg-success" : "bg-danger") rounded-pill">
+                                    @(emp.Activo ? "Activo" : "Inactivo")
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Editar" asp-route-id="@emp.Id" class="btn btn-outline-secondary" title="Editar">
+                                        <i class="bi bi-pencil-square"></i> @(userRole == "Administrador" ? "Editar" : "Solicitar Edición")
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalInactivar_@emp.Id" title="Inactivar / Reactivar">
+                                        <i class="bi bi-power"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Modal de Inactivar / Reactivar o Solicitar -->
+                                <div class="modal fade text-start" id="modalInactivar_@emp.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form asp-action="Inactivar" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@emp.Id" />
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title fw-bold @(emp.Activo ? "text-danger" : "text-success")">
+                                                        @(userRole == "Administrador" ? (emp.Activo ? "Inactivar Empleado" : "Reactivar Empleado") : "Solicitar Inactivación de Empleado")
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>¿Desea @(userRole == "Administrador" ? (emp.Activo ? "inactivar" : "reactivar") : "solicitar la inactivación de") a <strong>@emp.NombreCompleto</strong>?</p>
+                                                    @if (userRole != "Administrador")
+                                                    {
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-semibold">Motivo de la solicitud (Obligatorio):</label>
+                                                            <textarea name="motivo" class="form-control" rows="3" required placeholder="Justificación para el Administrador"></textarea>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn @(emp.Activo ? "btn-danger" : "btn-success")">
+                                                        @(userRole == "Administrador" ? (emp.Activo ? "Inactivar" : "Reactivar") : "Enviar Solicitud")
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            No hay empleados registrados en el sistema.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
